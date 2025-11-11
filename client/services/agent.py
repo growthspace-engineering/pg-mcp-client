@@ -419,16 +419,30 @@ class AgentService:
             )
             
             # Process results
+            # Server now returns {"data": [...], "metadata": {...}} structure
             results = []
+            metadata = {}
             if hasattr(query_result, 'content') and query_result.content:
                 # Extract all content items and parse the JSON
                 for content_item in query_result.content:
                     if hasattr(content_item, 'text'):
                         row_data = self._safe_parse_json(content_item.text)
                         if row_data:
-                            if isinstance(row_data, list):
+                            # Check if this is the new response structure with data/metadata
+                            if isinstance(row_data, dict) and 'data' in row_data:
+                                # Extract data from the new structure
+                                if isinstance(row_data['data'], list):
+                                    results.extend(row_data['data'])
+                                else:
+                                    results.append(row_data['data'])
+                                # Store metadata for potential future use
+                                if 'metadata' in row_data:
+                                    metadata.update(row_data['metadata'])
+                            elif isinstance(row_data, list):
+                                # Legacy format: direct list of results
                                 results.extend(row_data)
                             else:
+                                # Legacy format: single result object
                                 results.append(row_data)
             
             # Generate explanation based on SQL

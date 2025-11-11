@@ -1,6 +1,7 @@
 # client/app.py
 import uvicorn
 import os
+import secrets
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 
@@ -19,6 +20,16 @@ from client.middleware import ConfigSessionMiddleware
 
 load_dotenv()
 application_secret = os.getenv('APPLICATION_SECRET')
+
+# Generate a secret if none was provided (for testing/quick checks)
+if not application_secret:
+    application_secret = secrets.token_urlsafe(32)
+    logger.warning(
+        "APPLICATION_SECRET not provided. Generated a random secret for this session. "
+        "Note: Sessions will not persist across container restarts. "
+        "For production use, set APPLICATION_SECRET environment variable."
+    )
+
 # Initialize templates at application level
 templates = Jinja2Templates(directory='client/templates')
 

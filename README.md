@@ -42,12 +42,15 @@ The client connects to a PG-MCP server, which provides database schema informati
 git clone https://github.com/stuzero/pg-mcp-client.git
 cd pg-mcp-client
 
-# Create a .env file with your application secret
+# (Optional) Create a .env file with your application secret for persistent sessions
+# If not provided, a random secret will be generated (sessions won't persist across restarts)
 echo "APPLICATION_SECRET=your_secure_random_string" > .env
 
 # Build and run with Docker
 docker-compose up -d
 ```
+
+**Note:** `APPLICATION_SECRET` is optional but recommended. If not provided, the application will generate a random secret automatically. However, sessions will not persist across container restarts when using an auto-generated secret.
 
 ### Manual Installation
 
@@ -65,7 +68,8 @@ uv sync
 # Activate the virtual environment
 source .venv/bin/activate
 
-# Create a .env file with your application secret
+# (Optional) Create a .env file with your application secret for persistent sessions
+# If not provided, a random secret will be generated (sessions won't persist across restarts)
 echo "APPLICATION_SECRET=your_secure_random_string" > .env
 
 # Run the application
@@ -85,6 +89,15 @@ python -m client.app
 5. View the generated SQL and query results
 
 ## Configuration
+
+### Environment Variables
+
+- **APPLICATION_SECRET** (optional, recommended): A secure random string used to encrypt session cookies. If not provided, a random secret will be generated automatically. Note that sessions will not persist across container restarts when using an auto-generated secret. Generate a secure value using:
+  ```bash
+  python -c "import secrets; print(secrets.token_urlsafe(32))"
+  ```
+
+### Session Configuration
 
 The application stores the following configuration in the user's session:
 
